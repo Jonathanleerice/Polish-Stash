@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>DND Diva Gel Polish — Inventory Checklist</title>
+<style>
+  :root {
+    --bg: #fff8ff;
+    --card: #ffffff;
+    --ink: #222;
+    --accent: #ff4da6;
+    --accent-2: #ff9ed1;
+    --ring: #ffd1eb;
+    --pill: #ffe6f5;
+    --muted: #666;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: radial-gradient(circle at 10% 10%, #fff1fb, transparent 40%),
+                radial-gradient(circle at 90% 20%, #f1fff8, transparent 40%),
+                radial-gradient(circle at 30% 90%, #f7f0ff, transparent 40%),
+                var(--bg);
+    color: var(--ink);
+    font-family: 'Quicksand', ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter, 'Helvetica Neue', Arial, 'Noto Color Emoji', 'Apple Color Emoji', sans-serif;
+  }
+  header {
+    position: sticky; top: 0; z-index: 10;
+    backdrop-filter: blur(6px);
+    background: rgba(255,255,255,0.75);
+    border-bottom: 1px solid #f3e2f1;
+  }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 18px 16px; }
+  .title { display:flex; align-items:center; justify-content:center; gap:12px; flex-wrap:wrap; text-align:center; }
+  .title h1 { margin: 0; font-size: clamp(24px, 4vw, 40px); line-height:1.1; letter-spacing: .2px; }
+  .sparkles { font-size: 26px; }
+  .toolbar { display:flex; gap:10px; flex-wrap: wrap; margin-top: 10px; }
+  .input { flex: 1 1 260px; display:flex; align-items:center; gap:8px; background: var(--card); padding: 10px 12px; border-radius: 14px; border: 1px solid var(--ring); }
+  .input input { width: 100%; border: none; outline:none; font-size: 15px; background: transparent; }
+  .pill { padding:8px 12px; background: var(--pill); border:1px solid var(--ring); border-radius: 999px; font-size:14px; cursor:pointer; }
+  .pill:hover { filter: brightness(0.98); }
+  .grid { display:grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; padding: 18px 16px 40px; max-width:1100px; margin:0 auto; }
+  .card {
+    background: var(--card);
+    border: 1px solid #f2e4f1;
+    border-radius: 18px;
+    padding: 12px 12px 14px;
+    box-shadow: 0 8px 30px rgba(255, 110, 180, 0.06);
+    display:flex; flex-direction:column; gap:10px;
+    transition: transform .1s ease;
+  }
+  .card:hover { transform: translateY(-2px); }
+  .row { display:flex; align-items:center; justify-content: space-between; gap:8px; }
+  .name { font-weight: 700; font-size: 15px; display:flex; align-items:center; gap:8px; }
+  .num { color: var(--muted); font-weight:600; font-size: 13px; }
+  .actions { display:flex; align-items:center; gap:8px; }
+  .swatch { width: 38px; height: 38px; border-radius: 999px; border:1px solid #f0d8ea; box-shadow: 0 3px 12px rgba(255,110,180,.18) inset; flex:0 0 auto; background: #fff; overflow:hidden; display:grid; place-items:center; }
+  .swatch img { width: 100%; height: 100%; object-fit: cover; display:block; }
+  .swatch.fallback { font-size: 18px; }
+  .btn {
+    border-radius: 12px; border: 1px solid var(--ring);
+    background: linear-gradient(180deg, #fff, #ffeefe);
+    padding: 8px 10px; font-size: 13px; cursor: pointer; text-decoration:none; color: var(--ink);
+  }
+  .btn.order { border-color: #ffd4ea; background: linear-gradient(180deg, #ffe6f5, #ffd6ee); }
+  .btn.order:hover { filter: brightness(0.98); }
+  .emoji { filter: drop-shadow(0 1px 0 rgba(255,255,255,0.6)); }
+  /* Heart checkbox */
+  .heartcheck {
+    position: relative; display:inline-flex; align-items:center; gap:8px; cursor:pointer; user-select:none;
+  }
+  .heartcheck input { position: absolute; opacity: 0; pointer-events: none; }
+  .heart {
+    width: 22px; height: 22px; display:inline-block; border-radius: 6px;
+    position: relative; transition: transform .12s ease;
+  }
+  .heart::before, .heart::after {
+    content: "💖";
+    position: absolute; inset: 0;
+    display:grid; place-items:center;
+    font-size: 20px;
+    transform: scale(0.92);
+    opacity: 0.35;
+    transition: opacity .12s ease, transform .12s ease;
+  }
+  .heart:active { transform: scale(0.95); }
+  .heartcheck input:checked + .heart::before {
+    content: "💗";
+    opacity: 1; transform: scale(1);
+  }
+  .tags { font-size:12px; color: var(--muted); }
+  footer { text-align:center; padding: 28px 16px 40px; color: #777; }
+  .tiny { font-size: 12px; color: #777; }
+  .hidden { display:none !important; }
+
+  .hide-control { display: none !important; }
+  /* Larger swatch and new horizontal layout */
+  .card { padding: 14px; }
+  .card-row { display:flex; align-items:center; gap:14px; }
+  .card-main { display:flex; flex-direction:column; gap:8px; flex:1; }
+  .swatch { width: 76px; height: 76px; border-radius: 16px; }
+  .name { font-size: 16px; }
+  .num { font-size: 13px; }
+  .row-actions { display:flex; align-items:center; gap:12px; }
+  /* Heart: make unchecked more translucent for contrast */
+  .heart::before, .heart::after { opacity: 0.20; }        /* default/unchecked */
+  .heartcheck input:checked + .heart::before { opacity: 1; }  /* checked vivid */
+
+
+  .tags { display: none !important; }
+  /* Heart color: grey when unchecked, pink when checked */
+  .heart::before, .heart::after { content: "❤"; color: #bbb; opacity: 1; }
+  .heartcheck input:checked + .heart::before { content: "💗"; color: #ff4da6; }
+
+
+  /* Ensure tags stay hidden */
+  .tags { display: none !important; }
+
+  /* Right column layout for number + big heart */
+  .rightcol { display:flex; flex-direction:column; align-items:flex-end; gap:6px; }
+
+  
+  /* Heart toggle: outline when unchecked, filled when checked */
+  .heartcheck input { position: absolute; opacity: 0; pointer-events: none; }
+  .heart {
+    display: inline-block;
+    font-size: 90px; /* 3x larger than before (~30px) */
+    line-height: 1;
+    cursor: pointer;
+    user-select: none;
+    transform-origin: center;
+    transition: transform .12s ease;
+  }
+  .heart::before { content: "♡"; color: #bbb; }
+  .heartcheck input:checked + .heart::before { content: "❤"; color: #ff4da6; }
+  .heartcheck:active .heart { transform: scale(0.92); }
+
+
+</style>
+
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+  <header>
+    <div class="wrap">
+      <div class="title">
+        <div class="sparkles">💅✨</div>
+        <h1>DND Diva Gel Polish — Personal Inventory</h1>
+        <div class="sparkles">✨💅</div>
+      </div>
+      <div class="toolbar">
+        <div class="input">
+          <span>🔎</span>
+          <input id="search" type="search" placeholder="Search name or number… (e.g. 'Rose', '127')" />
+        </div>
+        <button class="pill" id="showAll">Show all</button>
+        <button class="pill" id="showOnHand">Show on-hand</button>
+        <button class="pill" id="showMissing">Show missing</button>
+        <button class="pill" id="clearAll">Clear all checks</button>
+        <button class="pill" id="exportOwned">Export owned</button>
+        <label class="pill" for="importOwnedInput" style="cursor:pointer;">Import owned</label>
+        <input id="importOwnedInput" type="file" accept=".json" class="hidden" />
+        <label class="pill" for="addSwatchesInput" style="cursor:pointer;">Add swatch images</label>
+        <input id="addSwatchesInput" type="file" accept="image/*" class="hidden" multiple />
+        <button class="pill" id="exportSwatches">Export swatches</button>
+        <label class="pill" for="importSwatchesInput" style="cursor:pointer;">Import swatches</label>
+        <input id="importSwatchesInput" type="file" accept=".json" class="hidden" />
+<button class="pill" id="auditUrls">Audit URLs</button>
+
+      </div>
+    </div>
+  </header>
+
+  <main class="grid" id="grid"></main>
+
+  <footer>
+    <div>Made with 💖, 💅, and lots of sparkle. Not affiliated with DND.</div>
+    <div class="tiny">Tip: Your selections are saved in your browser via localStorage.</div>
+  </footer>
+
+<script>
+
+// Name→color heuristic fallback (very rough, used only if remote fetch fails)
+function guessHexFromName(name) {
+  const n = name.toLowerCase();
+  const map = [
+    [/white|icy|pearl|glaze|milk|silk|snow|cloud/, '#f4f4f6'],
+    [/black|smoke|inky|charcoal|onyx/, '#222222'],
+    [/pink|rose|blush|flamingo|bubble|glam/, '#f7a8c8'],
+    [/red|cherry|crimson|ruby|scarlet|mocha/, '#cc3344'],
+    [/coral|peach|apricot|sunset/, '#ff7f5a'],
+    [/orange|tangerine|citrus/, '#ff8c2a'],
+    [/yellow|lemon|gold|honey|butter/, '#ffd54a'],
+    [/green|jade|mint|emerald|olive|sage/, '#55c09a'],
+    [/teal|aqua|turquoise|sea|ocean/, '#1fb7b7'],
+    [/blue|navy|sky|sapphire|indigo|azure|mercury/, '#3a7bd5'],
+    [/purple|violet|lilac|plum|amethyst/, '#8e62d9'],
+    [/brown|cocoa|chocolate|mocha|walnut|espresso/, '#7b4d2a'],
+    [/nude|beige|sand|taupe|almond|latte/, '#d6b39a'],
+    [/silver|steel|pewter|holo|hologra|glimmer|disco/, '#cfd6dd'],
+    [/gold|gild|treasure|champagne|glitz/, '#e7c36a'],
+    [/rose gold|rosé/, '#e7a9a6'],
+  ];
+  for (const [re, hex] of map) if (re.test(n)) return hex;
+  return '#dddddd';
+}
+
+
+async function loadSwatchFor(item, card) {
+  const holder = card.querySelector('.swatch');
+  if (!holder) return;
+
+  // Priority 1: user swatch
+  const local = swatchGet(item.number);
+  if (local) {
+    holder.innerHTML = '';
+    const img = new Image();
+    img.src = local;
+    img.alt = item.name + ' swatch';
+    img.loading = 'lazy';
+    img.decoding = 'async';
+    holder.appendChild(img);
+    return;
+  }
+
+  // Resolve working URL using candidates (override → DATA → short → improved slug)
+  let res = null;
+  try { res = await resolveProductUrl(item); } catch { res = null; }
+
+  if (res && res.okUrl) {
+    // Persist working URL as override so next loads are instant
+    urlSet(item.number, res.okUrl);
+
+    // Update order button + tags immediately
+    const a = card.querySelector('a.btn.order');
+    if (a) a.href = res.okUrl;
+    const tags = card.querySelector('.tags');
+    if (tags) tags.textContent = res.okUrl.replace(/^https?:\/\//,'');
+
+    const images = res.images || [];
+    const src = images[0]?.src || images[0]?.url || (Array.isArray(images) && images.length ? images[0] : null);
+    if (src) {
+      const img = new Image();
+      img.loading = 'lazy';
+      img.decoding = 'async';
+      img.alt = item.name + ' swatch';
+      img.src = (typeof src === 'string' && src.startsWith('http')) ? src : ('https:' + src);
+      img.addEventListener('error', () => useFallback(holder, item));
+      holder.innerHTML = '';
+      holder.appendChild(img);
+      return;
+    }
+  }
+
+  // Final fallback
+  useFallback(holder, item);
+}
+
+function useFallback(holder, item) {
+  holder.classList.add('fallback');
+  const guess = guessHexFromName(item.name);
+  holder.style.background = guess;
+  holder.textContent = '🎨';
+}
+
+
+// Build a candidate alt URL using the numeric code only
+function altProductUrlFor(n) {
+  const code = String(n).padStart(3,'0');
+  return `https://www.dndgel.com/products/diva-${code}`;
+}
+
+// Try product URLs in order until one resolves (via .json).
+// Returns {okUrl, images} or null if none resolve.
+async function tryResolveProductUrl(item) {
+  const primary = item.url;
+  const alt = altProductUrlFor(item.number);
+  const candidates = [primary, alt];
+  for (const u of candidates) {
+    try {
+      const resp = await fetch(u + '.json', {mode: 'cors'});
+      if (!resp.ok) continue;
+      const data = await resp.json();
+      const images = (data.images || data.product?.images || []);
+      return { okUrl: u, images };
+    } catch (e) {
+      // keep trying
+    }
+  }
+  return null;
+}
+
+
+// --- URL override storage ---
+const urlKey = (n) => `url:${String(n).padStart(3,'0')}`;
+function urlGet(n){ return localStorage.getItem(urlKey(n)); }
+function urlSet(n, u){ if(u) localStorage.setItem(urlKey(n), u); }
+
+// --- Improved slugify ---
+function stripDiacritics(str) {
+  try { return str.normalize('NFD').replace(/[\u0300-\u036f]/g, ''); }
+  catch { return str; }
+}
+function makeSlugFromName(name) {
+  let s = name.toLowerCase();
+  s = stripDiacritics(s);
+  s = s.replace(/\bdiva\b\s*$/i, '').trim(); // drop trailing "diva"
+  s = s.replace(/&/g, ' and ');
+  s = s.replace(/['’]/g, '');         // drop apostrophes
+  s = s.replace(/[^a-z0-9]+/g, '-');  // non-alnum -> hyphen
+  s = s.replace(/-+/g, '-');          // collapse hyphens
+  s = s.replace(/^-|-$/g, '');        // trim hyphens
+  return s;
+}
+function productUrlFromSlug(slug, num) {
+  return `https://www.dndgel.com/products/${slug}-diva-${String(num).padStart(3,'0')}`;
+}
+function shortProductUrl(num) {
+  return `https://www.dndgel.com/products/diva-${String(num).padStart(3,'0')}`;
+}
+
+function candidateUrlsFor(item) {
+  const candidates = [];
+  const override = urlGet(item.number);
+  if (override) candidates.push(override);
+  // Pre-existing from DATA
+  if (item.url) candidates.push(item.url);
+  // Short form
+  candidates.push(shortProductUrl(item.number));
+  // Improved slug from name
+  const slug = makeSlugFromName(item.name);
+  candidates.push(productUrlFromSlug(slug, item.number));
+  // De-duplicate while preserving order
+  const seen = new Set(); const dedup = [];
+  for (const u of candidates) { if (!seen.has(u)) { seen.add(u); dedup.push(u); } }
+  return dedup;
+}
+
+// Try candidates and return first with a working .json
+async function resolveProductUrl(item) {
+  const candidates = candidateUrlsFor(item);
+  for (const u of candidates) {
+    try {
+      const r = await fetch(u + '.json', {mode: 'cors'});
+      if (!r.ok) continue;
+      const data = await r.json();
+      const images = (data.images || data.product?.images || []);
+      return { okUrl: u, images };
+    } catch(e) { /* try next */ }
+  }
+  return null;
+}
+
+const DATA = {"records": [{"number": 1, "name": "Icy Glitz DIVA", "url": "https://www.dndgel.com/products/icy-glitz-diva-001"}, {"number": 2, "name": "Full Moon DIVA", "url": "https://www.dndgel.com/products/full-moon-diva-002"}, {"number": 3, "name": "Mercury Blues DIVA", "url": "https://www.dndgel.com/products/mercury-blues-diva-003"}, {"number": 4, "name": "Holo, Hi? DIVA", "url": "https://www.dndgel.com/products/holo-hi-diva-004"}, {"number": 5, "name": "Rainbow Disco DIVA", "url": "https://www.dndgel.com/products/rainbow-disco-diva-005"}, {"number": 6, "name": "Sugar & Sprinkles DIVA", "url": "https://www.dndgel.com/products/sugar-sprinkles-diva-006"}, {"number": 7, "name": "Stargirl DIVA", "url": "https://www.dndgel.com/products/stargirl-diva-007"}, {"number": 8, "name": "Queen Conch DIVA", "url": "https://www.dndgel.com/products/queen-conch-diva-008"}, {"number": 9, "name": "Jewel DIVA", "url": "https://www.dndgel.com/products/jewel-diva-009"}, {"number": 10, "name": "Pink Glazed DIVA", "url": "https://www.dndgel.com/products/pink-glazed-diva-010"}, {"number": 11, "name": "Doll’s Pearls DIVA", "url": "https://www.dndgel.com/products/doll-s-pearls-diva-011"}, {"number": 12, "name": "Dollhouse DIVA", "url": "https://www.dndgel.com/products/dollhouse-diva-012"}, {"number": 13, "name": "Fairy Heels DIVA", "url": "https://www.dndgel.com/products/fairy-heels-diva-013"}, {"number": 14, "name": "Balanced Libra DIVA", "url": "https://www.dndgel.com/products/balanced-libra-diva-014"}, {"number": 15, "name": "Norah DIVA", "url": "https://www.dndgel.com/products/norah-diva-015"}, {"number": 16, "name": "Limoncello Bling DIVA", "url": "https://www.dndgel.com/products/limoncello-bling-diva-016"}, {"number": 17, "name": "UFO Meets Earth DIVA", "url": "https://www.dndgel.com/products/ufo-meets-earth-diva-017"}, {"number": 18, "name": "Rêve Palais DIVA", "url": "https://www.dndgel.com/products/r-ve-palais-diva-018"}, {"number": 19, "name": "Out Of Place DIVA", "url": "https://www.dndgel.com/products/out-of-place-diva-019"}, {"number": 20, "name": "Meet On The Dancefloor DIVA", "url": "https://www.dndgel.com/products/meet-on-the-dancefloor-diva-020"}, {"number": 21, "name": "Hologra‑Fun DIVA", "url": "https://www.dndgel.com/products/hologra-fun-diva-021"}, {"number": 22, "name": "Glimmer Galaxy DIVA", "url": "https://www.dndgel.com/products/glimmer-galaxy-diva-022"}, {"number": 23, "name": "Oz of Holo DIVA", "url": "https://www.dndgel.com/products/oz-of-holo-diva-023"}, {"number": 24, "name": "Rainbow Prisms DIVA", "url": "https://www.dndgel.com/products/rainbow-prisms-diva-024"}, {"number": 25, "name": "Chunky Holo DIVA", "url": "https://www.dndgel.com/products/chunky-holo-diva-025"}, {"number": 26, "name": "Smokey Shimmy DIVA", "url": "https://www.dndgel.com/products/smokey-shimmy-diva-026"}, {"number": 27, "name": "Bulletproof DIVA", "url": "https://www.dndgel.com/products/bulletproof-diva-027"}, {"number": 28, "name": "Ready For The Ball DIVA", "url": "https://www.dndgel.com/products/ready-for-the-ball-diva-028"}, {"number": 29, "name": "Golden Treasure Waves DIVA", "url": "https://www.dndgel.com/products/golden-treasure-waves-diva-029"}, {"number": 30, "name": "Jade Jingle DIVA", "url": "https://www.dndgel.com/products/jade-jingle-diva-030"}, {"number": 31, "name": "Let’s Go To Vegas DIVA", "url": "https://www.dndgel.com/products/let-s-go-to-vegas-diva-031"}, {"number": 32, "name": "Fight For Love DIVA", "url": "https://www.dndgel.com/products/fight-for-love-diva-032"}, {"number": 33, "name": "Firecracker DIVA", "url": "https://www.dndgel.com/products/firecracker-diva-033"}, {"number": 34, "name": "Sequin Lipstick DIVA", "url": "https://www.dndgel.com/products/sequin-lipstick-diva-034"}, {"number": 35, "name": "Sip N’ Glitz DIVA", "url": "https://www.dndgel.com/products/sip-n-glitz-diva-035"}, {"number": 36, "name": "Sultry Gem DIVA", "url": "https://www.dndgel.com/products/sultry-gem-diva-036"}, {"number": 37, "name": "Jet Life DIVA", "url": "https://www.dndgel.com/products/jet-life-diva-037"}, {"number": 38, "name": "Smokey White DIVA", "url": "https://www.dndgel.com/products/smokey-white-diva-038"}, {"number": 39, "name": "Petal Haze DIVA", "url": "https://www.dndgel.com/products/petal-haze-diva-039"}, {"number": 40, "name": "Milkshake DIVA", "url": "https://www.dndgel.com/products/milkshake-diva-040"}, {"number": 41, "name": "With Grayce DIVA", "url": "https://www.dndgel.com/products/with-grayce-diva-041"}, {"number": 42, "name": "Porcelain Fine DIVA", "url": "https://www.dndgel.com/products/porcelain-fine-diva-042"}, {"number": 43, "name": "Vanilla Creme DIVA", "url": "https://www.dndgel.com/products/vanilla-creme-diva-043"}, {"number": 44, "name": "Spill the Tea DIVA", "url": "https://www.dndgel.com/products/spill-the-tea-diva-044"}, {"number": 45, "name": "Sandy Claws DIVA", "url": "https://www.dndgel.com/products/sandy-claws-diva-045"}, {"number": 46, "name": "Sand Storm DIVA", "url": "https://www.dndgel.com/products/sand-storm-diva-046"}, {"number": 47, "name": "Gourmet Nude DIVA", "url": "https://www.dndgel.com/products/gourmet-nude-diva-047"}, {"number": 48, "name": "Pale Dume DIVA", "url": "https://www.dndgel.com/products/pale-dume-diva-048"}, {"number": 49, "name": "Starfish Chai DIVA", "url": "https://www.dndgel.com/products/starfish-chai-diva-049"}, {"number": 50, "name": "Pinky Nude DIVA", "url": "https://www.dndgel.com/products/pinky-nude-diva-050"}, {"number": 51, "name": "Toasted DIVA", "url": "https://www.dndgel.com/products/toasted-diva-051"}, {"number": 52, "name": "Biscuits N’ Honey DIVA", "url": "https://www.dndgel.com/products/biscuits-n-honey-diva-052"}, {"number": 53, "name": "Snatched DIVA", "url": "https://www.dndgel.com/products/snatched-diva-053"}, {"number": 54, "name": "Jurassic Grey DIVA", "url": "https://www.dndgel.com/products/jurassic-grey-diva-054"}, {"number": 55, "name": "Unicorn Lantern DIVA", "url": "https://www.dndgel.com/products/unicorn-lantern-diva-055"}, {"number": 56, "name": "Snow Lilac DIVA", "url": "https://www.dndgel.com/products/snow-lilac-diva-056"}, {"number": 57, "name": "Only The Good DIVA", "url": "https://www.dndgel.com/products/only-the-good-diva-057"}, {"number": 58, "name": "Grey Meets Purple DIVA", "url": "https://www.dndgel.com/products/grey-meets-purple-diva-058"}, {"number": 59, "name": "Azalea Flower DIVA", "url": "https://www.dndgel.com/products/azalea-flower-diva-059"}, {"number": 60, "name": "Timeless Tea DIVA", "url": "https://www.dndgel.com/products/timeless-tea-diva-060"}, {"number": 61, "name": "French Girl DIVA", "url": "https://www.dndgel.com/products/french-girl-diva-061"}, {"number": 62, "name": "Winter Wedding DIVA", "url": "https://www.dndgel.com/products/winter-wedding-diva-062"}, {"number": 63, "name": "Shortbread DIVA", "url": "https://www.dndgel.com/products/shortbread-diva-063"}, {"number": 64, "name": "Beige Sand DIVA", "url": "https://www.dndgel.com/products/beige-sand-diva-064"}, {"number": 65, "name": "Kitty’s Paw DIVA", "url": "https://www.dndgel.com/products/kitty-s-paw-diva-065"}, {"number": 66, "name": "Texas Rose DIVA", "url": "https://www.dndgel.com/products/texas-rose-diva-066"}, {"number": 67, "name": "Kangaroo’s Paw DIVA", "url": "https://www.dndgel.com/products/kangaroo-s-paw-diva-067"}, {"number": 68, "name": "Mauve Nude DIVA", "url": "https://www.dndgel.com/products/mauve-nude-diva-068"}, {"number": 69, "name": "Opposites Attract DIVA", "url": "https://www.dndgel.com/products/opposites-attract-diva-069"}, {"number": 70, "name": "Nude Glamour DIVA", "url": "https://www.dndgel.com/products/nude-glamour-diva-070"}, {"number": 71, "name": "Toasted Apricot DIVA", "url": "https://www.dndgel.com/products/toasted-apricot-diva-071"}, {"number": 72, "name": "Chai Latte DIVA", "url": "https://www.dndgel.com/products/chai-latte-diva-072"}, {"number": 73, "name": "Cheesecake DIVA", "url": "https://www.dndgel.com/products/cheesecake-diva-073"}, {"number": 74, "name": "Creampuff DIVA", "url": "https://www.dndgel.com/products/creampuff-diva-074"}, {"number": 75, "name": "Dune Princess DIVA", "url": "https://www.dndgel.com/products/dune-princess-diva-075"}, {"number": 76, "name": "Attention Seeker DIVA", "url": "https://www.dndgel.com/products/attention-seeker-diva-076"}, {"number": 77, "name": "Girl Next Door DIVA", "url": "https://www.dndgel.com/products/girl-next-door-diva-077"}, {"number": 78, "name": "Rose Nude DIVA", "url": "https://www.dndgel.com/products/rose-nude-diva-078"}, {"number": 79, "name": "Oatmeal Rose DIVA", "url": "https://www.dndgel.com/products/oatmeal-rose-diva-079"}, {"number": 80, "name": "Pink About It DIVA", "url": "https://www.dndgel.com/products/pink-about-it-diva-080"}, {"number": 81, "name": "Pink Milkshake DIVA", "url": "https://www.dndgel.com/products/pink-milkshake-diva-081"}, {"number": 82, "name": "Sunny Delight DIVA", "url": "https://www.dndgel.com/products/sunny-delight-diva-082"}, {"number": 83, "name": "Lemon Sorbet DIVA", "url": "https://www.dndgel.com/products/lemon-sorbet-diva-083"}, {"number": 84, "name": "Dandelion DIVA", "url": "https://www.dndgel.com/products/dandelion-diva-084"}, {"number": 85, "name": "Banana Cream DIVA", "url": "https://www.dndgel.com/products/banana-cream-diva-085"}, {"number": 86, "name": "Durian, Plz DIVA", "url": "https://www.dndgel.com/products/durian-plz-diva-086"}, {"number": 87, "name": "Moral Conscience DIVA", "url": "https://www.dndgel.com/products/moral-conscience-diva-087"}, {"number": 88, "name": "Hot N’ Juicy DIVA", "url": "https://www.dndgel.com/products/hot-n-juicy-diva-088"}, {"number": 89, "name": "Sour Geek DIVA", "url": "https://www.dndgel.com/products/sour-geek-diva-089"}, {"number": 90, "name": "Coral Cravers DIVA", "url": "https://www.dndgel.com/products/coral-cravers-diva-090"}, {"number": 91, "name": "Nordic Breeze DIVA", "url": "https://www.dndgel.com/products/nordic-breeze-diva-091"}, {"number": 92, "name": "Looking Glass DIVA", "url": "https://www.dndgel.com/products/looking-glass-diva-092"}, {"number": 93, "name": "Standout DIVA", "url": "https://www.dndgel.com/products/standout-diva-093"}, {"number": 94, "name": "French Baguette DIVA", "url": "https://www.dndgel.com/products/french-baguette-diva-094"}, {"number": 95, "name": "Paint Me Like A French Girl DIVA", "url": "https://www.dndgel.com/products/paint-me-like-a-french-girl-diva-095"}, {"number": 96, "name": "Morphed Unicorn DIVA", "url": "https://www.dndgel.com/products/morphed-unicorn-diva-096"}, {"number": 97, "name": "Snatched Fairy DIVA", "url": "https://www.dndgel.com/products/snatched-fairy-diva-097"}, {"number": 98, "name": "Wanna Kiss? DIVA", "url": "https://www.dndgel.com/products/wanna-kiss-diva-098"}, {"number": 99, "name": "Blush Blossom DIVA", "url": "https://www.dndgel.com/products/blush-blossom-diva-099"}, {"number": 100, "name": "Base / Top Coat product, not a color shade", "url": "https://www.dndgel.com/products/base-top-coat-product-not-a-color-shade-diva-100"}, {"number": 101, "name": "Cotton Candy Lilac DIVA", "url": "https://www.dndgel.com/products/cotton-candy-lilac-diva-101"}, {"number": 102, "name": "Off The Grid DIVA", "url": "https://www.dndgel.com/products/off-the-grid-diva-102"}, {"number": 103, "name": "Dainty Lavender DIVA", "url": "https://www.dndgel.com/products/dainty-lavender-diva-103"}, {"number": 104, "name": "Peppermint Marshmallow DIVA", "url": "https://www.dndgel.com/products/peppermint-marshmallow-diva-104"}, {"number": 105, "name": "Pastel Pear DIVA", "url": "https://www.dndgel.com/products/pastel-pear-diva-105"}, {"number": 106, "name": "Pistachio Lemonade DIVA", "url": "https://www.dndgel.com/products/pistachio-lemonade-diva-106"}, {"number": 107, "name": "Periwinkle Tides DIVA", "url": "https://www.dndgel.com/products/periwinkle-tides-diva-107"}, {"number": 108, "name": "Lather Me Up DIVA", "url": "https://www.dndgel.com/products/lather-me-up-diva-108"}, {"number": 109, "name": "Sky High DIVA", "url": "https://www.dndgel.com/products/sky-high-diva-109"}, {"number": 110, "name": "Little Miss Pointe DIVA", "url": "https://www.dndgel.com/products/little-miss-pointe-diva-110"}, {"number": 111, "name": "Pink A Boo DIVA", "url": "https://www.dndgel.com/products/pink-a-boo-diva-111"}, {"number": 112, "name": "Sugared Rose DIVA", "url": "https://www.dndgel.com/products/sugared-rose-diva-112"}, {"number": 113, "name": "Cupcake Frosting DIVA", "url": "https://www.dndgel.com/products/cupcake-frosting-diva-113"}, {"number": 114, "name": "Homemade Tart DIVA", "url": "https://www.dndgel.com/products/homemade-tart-diva-114"}, {"number": 115, "name": "Pale Blush DIVA", "url": "https://www.dndgel.com/products/pale-blush-diva-115"}, {"number": 116, "name": "Pastel Lily DIVA", "url": "https://www.dndgel.com/products/pastel-lily-diva-116"}, {"number": 117, "name": "Dewy Limeade DIVA", "url": "https://www.dndgel.com/products/dewy-limeade-diva-117"}, {"number": 118, "name": "Pale Kiwi DIVA", "url": "https://www.dndgel.com/products/pale-kiwi-diva-118"}, {"number": 119, "name": "Voo‑DEW Green DIVA", "url": "https://www.dndgel.com/products/voo-dew-green-diva-119"}, {"number": 120, "name": "Mellow Gemini DIVA", "url": "https://www.dndgel.com/products/mellow-gemini-diva-120"}, {"number": 121, "name": "Sunny Side Up DIVA", "url": "https://www.dndgel.com/products/sunny-side-up-diva-121"}, {"number": 122, "name": "Vitamin D DIVA", "url": "https://www.dndgel.com/products/vitamin-d-diva-122"}, {"number": 123, "name": "Citrus Sizzle DIVA", "url": "https://www.dndgel.com/products/citrus-sizzle-diva-123"}, {"number": 124, "name": "Canary Crush DIVA", "url": "https://www.dndgel.com/products/canary-crush-diva-124"}, {"number": 125, "name": "From the Swamp DIVA", "url": "https://www.dndgel.com/products/from-the-swamp-diva-125"}, {"number": 126, "name": "Camp Cacti DIVA", "url": "https://www.dndgel.com/products/camp-cacti-diva-126"}, {"number": 127, "name": "Caterpillar Chronicles DIVA", "url": "https://www.dndgel.com/products/caterpillar-chronicles-diva-127"}, {"number": 128, "name": "Classic Waltz DIVA", "url": "https://www.dndgel.com/products/classic-waltz-diva-128"}, {"number": 129, "name": "Pies in the Sky DIVA", "url": "https://www.dndgel.com/products/pies-in-the-sky-diva-129"}, {"number": 130, "name": "Delicate Blush DIVA", "url": "https://www.dndgel.com/products/delicate-blush-diva-130"}, {"number": 131, "name": "Sunday Brunch DIVA", "url": "https://www.dndgel.com/products/sunday-brunch-diva-131"}, {"number": 132, "name": "Mauve Token DIVA", "url": "https://www.dndgel.com/products/mauve-token-diva-132"}, {"number": 133, "name": "Purple Meets Pink DIVA", "url": "https://www.dndgel.com/products/purple-meets-pink-diva-133"}, {"number": 134, "name": "Bubblegum Bliss DIVA", "url": "https://www.dndgel.com/products/bubblegum-bliss-diva-134"}, {"number": 135, "name": "Sweet Peony DIVA", "url": "https://www.dndgel.com/products/sweet-peony-diva-135"}, {"number": 136, "name": "Candy Coated DIVA", "url": "https://www.dndgel.com/products/candy-coated-diva-136"}, {"number": 137, "name": "Little Pink Dress DIVA", "url": "https://www.dndgel.com/products/little-pink-dress-diva-137"}, {"number": 138, "name": "Circus Pink DIVA", "url": "https://www.dndgel.com/products/circus-pink-diva-138"}, {"number": 139, "name": "Panther’s Paws DIVA", "url": "https://www.dndgel.com/products/panther-s-paws-diva-139"}, {"number": 140, "name": "Little Piggy DIVA", "url": "https://www.dndgel.com/products/little-piggy-diva-140"}, {"number": 141, "name": "Classical Pink DIVA", "url": "https://www.dndgel.com/products/classical-pink-diva-141"}, {"number": 142, "name": "Don’t Sugarcoat It DIVA", "url": "https://www.dndgel.com/products/don-t-sugarcoat-it-diva-142"}, {"number": 143, "name": "Coral Rose DIVA", "url": "https://www.dndgel.com/products/coral-rose-diva-143"}, {"number": 144, "name": "Zesty Sunshine DIVA", "url": "https://www.dndgel.com/products/zesty-sunshine-diva-144"}, {"number": 145, "name": "Créme Peach DIVA", "url": "https://www.dndgel.com/products/cr-me-peach-diva-145"}, {"number": 146, "name": "Toasted Butterscotch DIVA", "url": "https://www.dndgel.com/products/toasted-butterscotch-diva-146"}, {"number": 147, "name": "Buried Treasure DIVA", "url": "https://www.dndgel.com/products/buried-treasure-diva-147"}, {"number": 148, "name": "Slate Mocha DIVA", "url": "https://www.dndgel.com/products/slate-mocha-diva-148"}, {"number": 149, "name": "Nude Musical DIVA", "url": "https://www.dndgel.com/products/nude-musical-diva-149"}, {"number": 150, "name": "Overcast DIVA", "url": "https://www.dndgel.com/products/overcast-diva-150"}, {"number": 151, "name": "Castles In Spain DIVA", "url": "https://www.dndgel.com/products/castles-in-spain-diva-151"}, {"number": 152, "name": "Misty Pink DIVA", "url": "https://www.dndgel.com/products/misty-pink-diva-152"}, {"number": 153, "name": "Glass Princess DIVA", "url": "https://www.dndgel.com/products/glass-princess-diva-153"}, {"number": 154, "name": "Painter’s Antidote DIVA", "url": "https://www.dndgel.com/products/painter-s-antidote-diva-154"}, {"number": 155, "name": "Ghostride DIVA", "url": "https://www.dndgel.com/products/ghostride-diva-155"}, {"number": 156, "name": "Perfect White DIVA", "url": "https://www.dndgel.com/products/perfect-white-diva-156"}, {"number": 157, "name": "Snowglobe DIVA", "url": "https://www.dndgel.com/products/snowglobe-diva-157"}, {"number": 158, "name": "Matrix DIVA", "url": "https://www.dndgel.com/products/matrix-diva-158"}, {"number": 159, "name": "Mi Amor DIVA", "url": "https://www.dndgel.com/products/mi-amor-diva-159"}, {"number": 160, "name": "DIVA Red DIVA", "url": "https://www.dndgel.com/products/diva-red-diva-160"}, {"number": 161, "name": "Lovebug DIVA", "url": "https://www.dndgel.com/products/lovebug-diva-161"}, {"number": 162, "name": "Rebel Red DIVA", "url": "https://www.dndgel.com/products/rebel-red-diva-162"}, {"number": 163, "name": "Left Him On Red DIVA", "url": "https://www.dndgel.com/products/left-him-on-red-diva-163"}, {"number": 164, "name": "Raise the Barre DIVA", "url": "https://www.dndgel.com/products/raise-the-barre-diva-164"}, {"number": 165, "name": "Need A Bellini DIVA", "url": "https://www.dndgel.com/products/need-a-bellini-diva-165"}, {"number": 166, "name": "Daiquiri Cream DIVA", "url": "https://www.dndgel.com/products/daiquiri-cream-diva-166"}, {"number": 167, "name": "Golden Cheeks DIVA", "url": "https://www.dndgel.com/products/golden-cheeks-diva-167"}, {"number": 168, "name": "Tangy Apricot DIVA", "url": "https://www.dndgel.com/products/tangy-apricot-diva-168"}, {"number": 169, "name": "Dramatic Persimmon DIVA", "url": "https://www.dndgel.com/products/dramatic-persimmon-diva-169"}, {"number": 170, "name": "Sunday Chills DIVA", "url": "https://www.dndgel.com/products/sunday-chills-diva-170"}, {"number": 171, "name": "Bella Pink DIVA", "url": "https://www.dndgel.com/products/bella-pink-diva-171"}, {"number": 172, "name": "Where’s My Beret? DIVA", "url": "https://www.dndgel.com/products/where-s-my-beret-diva-172"}, {"number": 173, "name": "Sippin’ Rose Tea DIVA", "url": "https://www.dndgel.com/products/sippin-rose-tea-diva-173"}, {"number": 174, "name": "Cool As A Coral DIVA", "url": "https://www.dndgel.com/products/cool-as-a-coral-diva-174"}, {"number": 175, "name": "Coral Sunset DIVA", "url": "https://www.dndgel.com/products/coral-sunset-diva-175"}, {"number": 176, "name": "Nude Leather DIVA", "url": "https://www.dndgel.com/products/nude-leather-diva-176"}, {"number": 177, "name": "Stage Right DIVA", "url": "https://www.dndgel.com/products/stage-right-diva-177"}, {"number": 178, "name": "Fawn Over Me DIVA", "url": "https://www.dndgel.com/products/fawn-over-me-diva-178"}, {"number": 179, "name": "Dusty Mauve DIVA", "url": "https://www.dndgel.com/products/dusty-mauve-diva-179"}, {"number": 180, "name": "Feelin’ Calm DIVA", "url": "https://www.dndgel.com/products/feelin-calm-diva-180"}, {"number": 181, "name": "Toasted Melody DIVA", "url": "https://www.dndgel.com/products/toasted-melody-diva-181"}, {"number": 182, "name": "Pleasant Pink DIVA", "url": "https://www.dndgel.com/products/pleasant-pink-diva-182"}, {"number": 183, "name": "Pink Ribbons DIVA", "url": "https://www.dndgel.com/products/pink-ribbons-diva-183"}, {"number": 184, "name": "Clean Pallet DIVA", "url": "https://www.dndgel.com/products/clean-pallet-diva-184"}, {"number": 185, "name": "Peach Cobbler DIVA", "url": "https://www.dndgel.com/products/peach-cobbler-diva-185"}, {"number": 186, "name": "Peach Mimosa DIVA", "url": "https://www.dndgel.com/products/peach-mimosa-diva-186"}, {"number": 187, "name": "Princesa Rosa DIVA", "url": "https://www.dndgel.com/products/princesa-rosa-diva-187"}, {"number": 188, "name": "Highlighter Yellow DIVA", "url": "https://www.dndgel.com/products/highlighter-yellow-diva-188"}, {"number": 189, "name": "Tennis Ball DIVA", "url": "https://www.dndgel.com/products/tennis-ball-diva-189"}, {"number": 190, "name": "Tokyo Tea DIVA", "url": "https://www.dndgel.com/products/tokyo-tea-diva-190"}, {"number": 191, "name": "Lizard State DIVA", "url": "https://www.dndgel.com/products/lizard-state-diva-191"}, {"number": 192, "name": "Lawn Green DIVA", "url": "https://www.dndgel.com/products/lawn-green-diva-192"}, {"number": 193, "name": "Hot Girl Walks DIVA", "url": "https://www.dndgel.com/products/hot-girl-walks-diva-193"}, {"number": 194, "name": "Clique-Bait DIVA", "url": "https://www.dndgel.com/products/clique-bait-diva-194"}, {"number": 195, "name": "Side Of Ube DIVA", "url": "https://www.dndgel.com/products/side-of-ube-diva-195"}, {"number": 196, "name": "Lavender Silk DIVA", "url": "https://www.dndgel.com/products/lavender-silk-diva-196"}, {"number": 197, "name": "Masquerade DIVA", "url": "https://www.dndgel.com/products/masquerade-diva-197"}, {"number": 198, "name": "Overseas DIVA", "url": "https://www.dndgel.com/products/overseas-diva-198"}, {"number": 199, "name": "Call Me Your Highness DIVA", "url": "https://www.dndgel.com/products/call-me-your-highness-diva-199"}, {"number": 200, "name": "NO COLOR", "url": "https://www.dndgel.com/products/no-color-diva-200"}, {"number": 201, "name": "Got The Juice DIVA", "url": "https://www.dndgel.com/products/got-the-juice-diva-201"}, {"number": 202, "name": "In The Mix DIVA", "url": "https://www.dndgel.com/products/in-the-mix-diva-202"}, {"number": 203, "name": "Mimosa DIVA", "url": "https://www.dndgel.com/products/mimosa-diva-203"}, {"number": 204, "name": "Marigold DIVA", "url": "https://www.dndgel.com/products/marigold-diva-204"}, {"number": 205, "name": "Papaya Pop DIVA", "url": "https://www.dndgel.com/products/papaya-pop-diva-205"}, {"number": 206, "name": "Peach Paradise DIVA", "url": "https://www.dndgel.com/products/peach-paradise-diva-206"}, {"number": 207, "name": "Sunset Creamsicle DIVA", "url": "https://www.dndgel.com/products/sunset-creamsicle-diva-207"}, {"number": 208, "name": "Perfect Orange DIVA", "url": "https://www.dndgel.com/products/perfect-orange-diva-208"}, {"number": 209, "name": "Coral Breeze DIVA", "url": "https://www.dndgel.com/products/coral-breeze-diva-209"}, {"number": 210, "name": "Sunkissed Coral DIVA", "url": "https://www.dndgel.com/products/sunkissed-coral-diva-210"}, {"number": 211, "name": "What A Tease DIVA", "url": "https://www.dndgel.com/products/what-a-tease-diva-211"}, {"number": 212, "name": "Sour Bubblegum DIVA", "url": "https://www.dndgel.com/products/sour-bubblegum-diva-212"}, {"number": 213, "name": "Juicy Fruit DIVA", "url": "https://www.dndgel.com/products/juicy-fruit-diva-213"}, {"number": 214, "name": "Candy Store DIVA", "url": "https://www.dndgel.com/products/candy-store-diva-214"}, {"number": 215, "name": "Fuchsia Rose DIVA", "url": "https://www.dndgel.com/products/fuchsia-rose-diva-215"}, {"number": 216, "name": "Tropic Like It's Hot DIVA", "url": "https://www.dndgel.com/products/tropic-like-it-s-hot-diva-216"}, {"number": 217, "name": "Fire Breather DIVA", "url": "https://www.dndgel.com/products/fire-breather-diva-217"}, {"number": 218, "name": "Astral Spark DIVA", "url": "https://www.dndgel.com/products/astral-spark-diva-218"}, {"number": 219, "name": "Bumblebee DIVA", "url": "https://www.dndgel.com/products/bumblebee-diva-219"}, {"number": 220, "name": "Little Miss Sunshine DIVA", "url": "https://www.dndgel.com/products/little-miss-sunshine-diva-220"}, {"number": 221, "name": "Aloha! DIVA", "url": "https://www.dndgel.com/products/aloha-diva-221"}, {"number": 222, "name": "Angel Numbers DIVA", "url": "https://www.dndgel.com/products/angel-numbers-diva-222"}, {"number": 223, "name": "Star Student DIVA", "url": "https://www.dndgel.com/products/star-student-diva-223"}, {"number": 224, "name": "Gypsy Soul DIVA", "url": "https://www.dndgel.com/products/gypsy-soul-diva-224"}, {"number": 225, "name": "Scorpio’s Discovery DIVA", "url": "https://www.dndgel.com/products/scorpio-s-discovery-diva-225"}, {"number": 226, "name": "Acai On The Prize DIVA", "url": "https://www.dndgel.com/products/acai-on-the-prize-diva-226"}, {"number": 227, "name": "R U Jelly? DIVA", "url": "https://www.dndgel.com/products/r-u-jelly-diva-227"}, {"number": 228, "name": "I Have A Crush DIVA", "url": "https://www.dndgel.com/products/i-have-a-crush-diva-228"}, {"number": 229, "name": "Juicy Cowgirl DIVA", "url": "https://www.dndgel.com/products/juicy-cowgirl-diva-229"}, {"number": 230, "name": "Strawberry Martini DIVA", "url": "https://www.dndgel.com/products/strawberry-martini-diva-230"}, {"number": 231, "name": "Blazing Berry DIVA", "url": "https://www.dndgel.com/products/blazing-berry-diva-231"}, {"number": 232, "name": "Coral Craze DIVA", "url": "https://www.dndgel.com/products/coral-craze-diva-232"}, {"number": 233, "name": "Heatwave DIVA", "url": "https://www.dndgel.com/products/heatwave-diva-233"}, {"number": 234, "name": "Jellyfish Candy DIVA", "url": "https://www.dndgel.com/products/jellyfish-candy-diva-234"}, {"number": 235, "name": "\"Sorry There Was Traffic\" DIVA", "url": "https://www.dndgel.com/products/sorry-there-was-traffic-diva-235"}, {"number": 236, "name": "Heart Eyes 4 U DIVA", "url": "https://www.dndgel.com/products/heart-eyes-4-u-diva-236"}, {"number": 237, "name": "Detective Mauve DIVA", "url": "https://www.dndgel.com/products/detective-mauve-diva-237"}, {"number": 238, "name": "Warm Stone DIVA", "url": "https://www.dndgel.com/products/warm-stone-diva-238"}, {"number": 239, "name": "Chestnut Wonders DIVA", "url": "https://www.dndgel.com/products/chestnut-wonders-diva-239"}, {"number": 240, "name": "Deep Taupe DIVA", "url": "https://www.dndgel.com/products/deep-taupe-diva-240"}, {"number": 241, "name": "Wild Sage DIVA", "url": "https://www.dndgel.com/products/wild-sage-diva-241"}, {"number": 242, "name": "Nautical Gray DIVA", "url": "https://www.dndgel.com/products/nautical-gray-diva-242"}, {"number": 243, "name": "Imperial Jade DIVA", "url": "https://www.dndgel.com/products/imperial-jade-diva-243"}, {"number": 244, "name": "Emerald Meadow DIVA", "url": "https://www.dndgel.com/products/emerald-meadow-diva-244"}, {"number": 245, "name": "Teal Treasures DIVA", "url": "https://www.dndgel.com/products/teal-treasures-diva-245"}, {"number": 246, "name": "Blue Lagoon DIVA", "url": "https://www.dndgel.com/products/blue-lagoon-diva-246"}, {"number": 247, "name": "Jelly Marine DIVA", "url": "https://www.dndgel.com/products/jelly-marine-diva-247"}, {"number": 248, "name": "Cherry On Top DIVA", "url": "https://www.dndgel.com/products/cherry-on-top-diva-248"}, {"number": 249, "name": "Red-Y Or Not DIVA", "url": "https://www.dndgel.com/products/red-y-or-not-diva-249"}, {"number": 250, "name": "Cedar Brown DIVA", "url": "https://www.dndgel.com/products/cedar-brown-diva-250"}, {"number": 251, "name": "Chocolate Red DIVA", "url": "https://www.dndgel.com/products/chocolate-red-diva-251"}, {"number": 252, "name": "Silky Beets DIVA", "url": "https://www.dndgel.com/products/silky-beets-diva-252"}, {"number": 253, "name": "Gothic Grape DIVA", "url": "https://www.dndgel.com/products/gothic-grape-diva-253"}, {"number": 254, "name": "Vampire’s Kiss DIVA", "url": "https://www.dndgel.com/products/vampire-s-kiss-diva-254"}, {"number": 255, "name": "Misty Morning DIVA", "url": "https://www.dndgel.com/products/misty-morning-diva-255"}, {"number": 256, "name": "Pale Pebble DIVA", "url": "https://www.dndgel.com/products/pale-pebble-diva-256"}, {"number": 257, "name": "Dewdrop Gray DIVA", "url": "https://www.dndgel.com/products/dewdrop-gray-diva-257"}, {"number": 258, "name": "Dusk Delight DIVA", "url": "https://www.dndgel.com/products/dusk-delight-diva-258"}, {"number": 259, "name": "Airy Daze DIVA", "url": "https://www.dndgel.com/products/airy-daze-diva-259"}, {"number": 260, "name": "Slate Of The Art DIVA", "url": "https://www.dndgel.com/products/slate-of-the-art-diva-260"}, {"number": 261, "name": "One Hit Wonder DIVA", "url": "https://www.dndgel.com/products/one-hit-wonder-diva-261"}, {"number": 262, "name": "Seafoam Serenade DIVA", "url": "https://www.dndgel.com/products/seafoam-serenade-diva-262"}, {"number": 263, "name": "Trip To NYC DIVA", "url": "https://www.dndgel.com/products/trip-to-nyc-diva-263"}, {"number": 264, "name": "Taupe Temptation DIVA", "url": "https://www.dndgel.com/products/taupe-temptation-diva-264"}, {"number": 265, "name": "Driftwood DIVA", "url": "https://www.dndgel.com/products/driftwood-diva-265"}, {"number": 266, "name": "Nude Mocha DIVA", "url": "https://www.dndgel.com/products/nude-mocha-diva-266"}, {"number": 267, "name": "Almond Toffee DIVA", "url": "https://www.dndgel.com/products/almond-toffee-diva-267"}, {"number": 268, "name": "Cedar-licious DIVA", "url": "https://www.dndgel.com/products/cedar-licious-diva-268"}, {"number": 269, "name": "Chocolate Therapy DIVA", "url": "https://www.dndgel.com/products/chocolate-therapy-diva-269"}, {"number": 270, "name": "Triple Espresso DIVA", "url": "https://www.dndgel.com/products/triple-espresso-diva-270"}, {"number": 271, "name": "Western Cedar DIVA", "url": "https://www.dndgel.com/products/western-cedar-diva-271"}, {"number": 272, "name": "Autumn Blaze DIVA", "url": "https://www.dndgel.com/products/autumn-blaze-diva-272"}, {"number": 273, "name": "Sound Of Rain DIVA", "url": "https://www.dndgel.com/products/sound-of-rain-diva-273"}, {"number": 274, "name": "Mint Julep DIVA", "url": "https://www.dndgel.com/products/mint-julep-diva-274"}, {"number": 275, "name": "Botanical Bliss DIVA", "url": "https://www.dndgel.com/products/botanical-bliss-diva-275"}, {"number": 276, "name": "Kiss The Prince DIVA", "url": "https://www.dndgel.com/products/kiss-the-prince-diva-276"}, {"number": 277, "name": "Foggy Fern DIVA", "url": "https://www.dndgel.com/products/foggy-fern-diva-277"}, {"number": 278, "name": "Meditation DIVA", "url": "https://www.dndgel.com/products/meditation-diva-278"}, {"number": 279, "name": "Wasabi Baby DIVA", "url": "https://www.dndgel.com/products/wasabi-baby-diva-279"}, {"number": 280, "name": "Salsa Verde DIVA", "url": "https://www.dndgel.com/products/salsa-verde-diva-280"}, {"number": 281, "name": "Collard Greens DIVA", "url": "https://www.dndgel.com/products/collard-greens-diva-281"}, {"number": 282, "name": "Dirty Martini DIVA", "url": "https://www.dndgel.com/products/dirty-martini-diva-282"}, {"number": 283, "name": "Army Green DIVA", "url": "https://www.dndgel.com/products/army-green-diva-283"}, {"number": 284, "name": "Olive Green DIVA", "url": "https://www.dndgel.com/products/olive-green-diva-284"}, {"number": 285, "name": "Sage’d The Day DIVA", "url": "https://www.dndgel.com/products/sage-d-the-day-diva-285"}, {"number": 286, "name": "First Place DIVA", "url": "https://www.dndgel.com/products/first-place-diva-286"}, {"number": 287, "name": "Houseplant DIVA", "url": "https://www.dndgel.com/products/houseplant-diva-287"}, {"number": 288, "name": "Going Camo DIVA", "url": "https://www.dndgel.com/products/going-camo-diva-288"}, {"number": 289, "name": "Crocodile Tales DIVA", "url": "https://www.dndgel.com/products/crocodile-tales-diva-289"}, {"number": 290, "name": "Art House DIVA", "url": "https://www.dndgel.com/products/art-house-diva-290"}]};
+
+// Utilities
+const idFor = (n) => `dnd-diva-${String(n).padStart(3,'0')}`;
+const storageKey = (n) => `owned:${idFor(n)}`;
+
+function ownGet(n) { return localStorage.getItem(storageKey(n)) === '1'; }
+function ownSet(n, v) { if(v) localStorage.setItem(storageKey(n), '1'); else localStorage.removeItem(storageKey(n)); }
+
+const grid = document.getElementById('grid');
+const search = document.getElementById('search');
+const showAllBtn = document.getElementById('showAll');
+const showOnBtn = document.getElementById('showOnHand');
+const showMissBtn = document.getElementById('showMissing');
+const clearAllBtn = document.getElementById('clearAll');
+const exportBtn = document.getElementById('exportOwned');
+const importInput = document.getElementById('importOwnedInput');
+
+const addSwatchesInput = document.getElementById('addSwatchesInput');
+const exportSwatchesBtn = document.getElementById('exportSwatches');
+const importSwatchesInput = document.getElementById('importSwatchesInput');
+
+// ---- Local swatch storage (100% coverage via user-provided images) ----
+const swatchKey = (n) => `swatch:${String(n).padStart(3,'0')}`;
+function swatchGet(n){ return localStorage.getItem(swatchKey(n)); }
+function swatchSet(n, dataUrl){ if(dataUrl) localStorage.setItem(swatchKey(n), dataUrl); }
+function swatchDelete(n){ localStorage.removeItem(swatchKey(n)); }
+
+// Try to extract a 3-digit number from a filename (e.g., diva-001.jpg -> 1)
+function numberFromFilename(name){
+  const m3 = name.match(/\b(\d{3})\b/);
+  if(m3) return parseInt(m3[1], 10);
+  const any = name.match(/(\d{1,3})/);
+  if(any) return parseInt(any[1], 10);
+  return null;
+}
+
+addSwatchesInput?.addEventListener('change', async (e) => {
+  const files = Array.from(e.target.files || []);
+  if(!files.length) return;
+  let mapped = 0, skipped = 0;
+  for (const f of files){
+    const n = numberFromFilename(f.name);
+    if(!n || isNaN(n) || n<1 || n>999){ skipped++; continue; }
+    const dataUrl = await new Promise((resolve,reject) => {
+      const r = new FileReader();
+      r.onload = () => resolve(r.result);
+      r.onerror = () => reject(r.error);
+      r.readAsDataURL(f);
+    });
+    swatchSet(n, dataUrl);
+    mapped++;
+  }
+  alert(`Added ${mapped} swatches. Skipped ${skipped} files (no 1–3 digit number found in filename).`);
+  render();
+});
+
+exportSwatchesBtn?.addEventListener('click', () => {
+  const data = {};
+  for(const r of DATA.records){
+    const v = swatchGet(r.number);
+    if(v) data[String(r.number).padStart(3,'0')] = v;
+  }
+  const blob = new Blob([JSON.stringify({swatches:data}, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'dnd-diva-swatches.json'; a.click();
+  URL.revokeObjectURL(url);
+});
+
+importSwatchesInput?.addEventListener('change', (e)=>{
+  const file = e.target.files?.[0];
+  if(!file) return;
+  const r = new FileReader();
+  r.onload = () => {
+    try{
+      const obj = JSON.parse(r.result);
+      if(!obj || typeof obj !== 'object' || !obj.swatches) throw new Error('Invalid JSON');
+      const map = obj.swatches;
+      let count = 0;
+      for(const k of Object.keys(map)){
+        const n = parseInt(k,10);
+        const v = map[k];
+        if(n>=1 && n<=999 && typeof v === 'string' && v.startsWith('data:image/')){
+          swatchSet(n, v); count++;
+        }
+      }
+      alert(`Imported ${count} swatches.`);
+      render();
+    }catch(err){
+      alert('Failed to import swatches: ' + err.message);
+    }
+  };
+  r.readAsText(file);
+});
+
+
+let filterMode = 'all'; // 'all' | 'on' | 'off'
+
+function render() {
+  grid.innerHTML = '';
+  const q = search.value.trim().toLowerCase();
+  const items = DATA.records.filter(r => {
+    const matchesQ = !q || r.name.toLowerCase().includes(q) || String(r.number).includes(q);
+    const owned = ownGet(r.number);
+    const passesMode = filterMode === 'all' ? true : filterMode === 'on' ? owned : !owned;
+    return matchesQ && passesMode;
+  });
+  for (const r of items) {
+    const card = document.createElement('div');
+    card.className = 'card';
+
+    const rowH = document.createElement('div');
+    rowH.className = 'card-row';
+
+    // Left: swatch
+    const sw = document.createElement('div');
+    sw.className = 'swatch';
+
+    // Right: main content
+    const main = document.createElement('div');
+    main.className = 'card-main';
+
+    const top = document.createElement('div');
+    top.className = 'row';
+
+    const name = document.createElement('div');
+    name.className = 'name';
+    name.innerHTML = `<span class="emoji">💅</span> <span>${r.name}</span>`;
+
+    // Right column: number + big heart
+    const right = document.createElement('div');
+    right.className = 'rightcol';
+
+    const num = document.createElement('div');
+    num.className = 'num';
+    num.textContent = '#' + String(r.number).padStart(3,'0');
+
+    // Big heart toggle (still backed by a checkbox to reuse storage logic)
+    const label = document.createElement('label');
+    label.className = 'heartcheck';
+    const cb = document.createElement('input');
+    cb.type = 'checkbox';
+    cb.checked = ownGet(r.number);
+    const heart = document.createElement('span');
+    heart.className = 'heart';
+    label.appendChild(cb);
+    label.appendChild(heart);
+    cb.addEventListener('change', () => ownSet(r.number, cb.checked));
+
+    right.appendChild(num);
+    right.appendChild(label);
+
+    top.appendChild(name);
+    top.appendChild(right);
+
+    const actions = document.createElement('div');
+    actions.className = 'row-actions';
+
+    // Order button
+    const a = document.createElement('a');
+    a.className = 'btn order';
+    a.href = urlGet(r.number) || r.url;
+    a.target = '_blank';
+    a.rel = 'noopener';
+    a.textContent = 'Order →';
+
+    actions.appendChild(a);
+
+    // (URL tags hidden by CSS, but we keep the element for scripts that might read it)
+    const tags = document.createElement('div');
+    tags.className = 'tags';
+    tags.textContent = (urlGet(r.number) || r.url).replace(/^https?:\/\//,'');
+
+    main.appendChild(top);
+    main.appendChild(actions);
+    main.appendChild(tags);
+
+    rowH.appendChild(sw);
+    rowH.appendChild(main);
+    card.appendChild(rowH);
+    grid.appendChild(card);
+
+    loadSwatchFor(r, card);
+  }
+}
+
+search.addEventListener('input', render);
+showAllBtn.addEventListener('click', () => { filterMode = 'all'; render(); });
+showOnBtn.addEventListener('click', () => { filterMode = 'on'; render(); });
+showMissBtn.addEventListener('click', () => { filterMode = 'off'; render(); });
+clearAllBtn.addEventListener('click', () => {
+  if (confirm('Clear all owned checks?')) {
+    for (const r of DATA.records) localStorage.removeItem(storageKey(r.number));
+    render();
+  }
+});
+
+exportBtn.addEventListener('click', () => {
+  const owned = DATA.records.filter(r => ownGet(r.number)).map(r => r.number);
+  const blob = new Blob([JSON.stringify({owned}, null, 2)], {type: 'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'dnd-diva-owned.json';
+  a.click();
+  URL.revokeObjectURL(url);
+});
+
+importInput.addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const obj = JSON.parse(reader.result);
+      if (!obj || !Array.isArray(obj.owned)) throw new Error('Invalid file');
+      // Clear then set
+      for (const r of DATA.records) localStorage.removeItem(storageKey(r.number));
+      for (const n of obj.owned) ownSet(n, true);
+      render();
+      alert('Imported owned list!');
+    } catch(err) {
+      alert('Failed to import: ' + err.message);
+    }
+  };
+  reader.readAsText(file);
+});
+
+
+const auditBtn = document.getElementById('auditUrls');
+auditBtn?.addEventListener('click', async () => {
+  const start = performance.now();
+  let ok = 0, fixed = 0, fail = 0;
+  for (const item of DATA.records) {
+    try {
+      const res = await resolveProductUrl(item);
+      if (res && res.okUrl) {
+        const prev = urlGet(item.number);
+        urlSet(item.number, res.okUrl);
+        if (prev !== res.okUrl) fixed++; else ok++;
+      } else {
+        fail++;
+      }
+    } catch { fail++; }
+  }
+  render(); // refresh links/tags
+  const ms = Math.round(performance.now() - start);
+  alert(`URL audit complete:\n\nWorking (unchanged): ${ok}\nFixed to working URL: ${fixed}\nStill unresolved: ${fail}\n\nTime: ${ms} ms`);
+});
+
+
+
+// Hide extra controls (keep: search, showAll, showOnHand, showMissing)
+;(function(){
+  const keep = new Set(['showAll','showOnHand','showMissing']);
+  const idsToHide = [
+    'clearAll','exportOwned','importOwnedInput',
+    'addSwatchesInput','exportSwatches','importSwatchesInput',
+    'auditUrls'
+  ];
+  for (const id of idsToHide) {
+    const el = document.getElementById(id);
+    if (el) el.classList?.add('hide-control'), (el.style.display = 'none');
+  }
+  // Also hide their labels/buttons if they were labels (by matching [for=...])
+  const hideFor = ['importOwnedInput','addSwatchesInput','importSwatchesInput'];
+  for (const f of hideFor) {
+    const lbl = document.querySelector(`label[for="${f}"]`);
+    if (lbl) lbl.classList.add('hide-control'), (lbl.style.display = 'none');
+  }
+})();
+
+
+// initial render
+render();
+</script>
+</body>
+</html>
